@@ -1,0 +1,89 @@
+* {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+.textOverflow {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.tooltip {
+    z-index: 1000;
+    background-color: white;
+    opacity: 0;
+    border: 1px solid lightgray;
+    padding: 10px 0px 10px 0px;
+    width: 350px;
+    border-radius: 14px;
+    -webkit-box-shadow: -7px 8px 16px -7px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: -7px 8px 16px -7px rgba(0, 0, 0, 0.75);
+    box-shadow: -7px 8px 16px -7px rgba(0, 0, 0, 0.75);
+    position: absolute;
+    transition: 0.4s;
+}
+
+.tooltip.active {
+    opacity: 1;
+}
+
+.tooltipRow {
+    display: flex;
+}
+
+.tooltipRow.margin {
+    margin-top: 10px;
+}
+
+.widthLeft {
+    width: 20%;
+    display: inline-block;
+    text-align: right;
+    padding: 0px 10px 0px 5px;
+}
+
+.widthRight {
+    width: 80%;
+    display: inline-block;
+}
+
+.digitalExtendedSpecimenTitle {
+    color: #9FC5F8;
+    font-weight: bold;
+    font-size: 22px;
+    margin: 0;
+}
+
+.preservedStatus {
+    margin: 0;
+    display: inline;
+}
+
+.IDTitle {
+    margin: 0;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.IDField {
+    margin: 0;
+}
+
+.organisationIcon {
+    width: 30%;
+}
+
+.organisationTitle {
+    margin: 0;
+}
+
+.DOIRow {
+    display: flex;
+    justify-content: end;
+    padding: 0px 10px 0px 0px;
+}
+
+.DOILogo {
+    width: 30px;
+}
