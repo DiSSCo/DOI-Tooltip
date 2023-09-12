@@ -51,7 +51,7 @@
         <p style="font-size: 20px;">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit,
 
-            <span style="color: blue; cursor: pointer;" onClick="TooltipTrigger('20.5000.1025/KMX-F7Q-6UX', this)">
+            <span style="color: blue; cursor: pointer;" onClick="TooltipTrigger('TEST/ZZZ-ZW5-RF7', this)">
                 20.5000.1025/KMX-F7Q-6UX
             </span>
 
@@ -82,7 +82,7 @@
         let record;
 
         try {
-            const response = await fetch(`https://hdl.handle.net/api/handles/${doi}`);
+            const response = await fetch(`https://dev.dissco.tech/handle-manager/api/v1/pids/${doi}`);
             record = await response.json();
         } catch (error) {
             console.warn(error);
@@ -91,19 +91,20 @@
         /* Trigger Tooltip with DOI information */
         {
             /* Set Scientific Name */
-            document.getElementById('tooltipScientificName').innerHTML = 'Adonis flammea';
+            document.getElementById('tooltipScientificName').innerHTML =  record.data.attributes.referentName;
 
             /* Set Status */
-            document.getElementById('tooltipStatus').innerHTML = '(preserved botany specimen)';
+            document.getElementById('tooltipStatus').innerHTML = `(${record.data.attributes.livingOrPreserved}
+                ${record.data.attributes.topicDiscipline.toLowerCase()} specimen)`;
 
             /* Set Status */
-            document.getElementById('tooltipID').innerHTML = 'ID of the specimen';
+            document.getElementById('tooltipID').innerHTML = record.data.attributes.primarySpecimenObjectId;
 
             /* Set GUID */
             document.getElementById('tooltipGUID').innerHTML = '(Catalog Record GUID)';
 
             /* Set Organisation */
-            document.getElementById('tooltipOrganisation').innerHTML = 'Organisation of specimen';
+            document.getElementById('tooltipOrganisation').innerHTML = record.data.attributes.specimenHostName;
         }
 
         /* Set Tooltip Position relative to element */

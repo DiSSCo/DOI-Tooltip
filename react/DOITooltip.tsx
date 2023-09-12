@@ -19,7 +19,7 @@ const DOITooltip = (props: Props) => {
     const DOITooltipRef = useRef<HTMLDivElement>(null);
 
     /* Base variables */
-    const [_record, setRecord] = useState();
+    const [record, setRecord] = useState();
     const [active, setActive] = useState(false);
 
     /* Function for fetching DOI details */
@@ -69,8 +69,9 @@ const DOITooltip = (props: Props) => {
                         <p className="digitalExtendedSpecimenTitle"> DES </p>
                     </div>
                     <div className="widthRight">
-                        <p id="tooltipScientificName" className="digitalExtendedSpecimenTitle"> Adonis flammea </p>
-                        <p id="tooltipStatus" className="preservedStatus textOverflow"> (preserved botany specimen) </p>
+                        <p id="tooltipScientificName" className="digitalExtendedSpecimenTitle"> {record.data.attributes.referentName} </p>
+                        <p id="tooltipStatus" className="preservedStatus textOverflow"> {`${record.data.attributes.livingOrPreserved}
+                            ${record.data.attributes.topicDiscipline.toLowerCase()} specimen`} </p>
                     </div>
                 </div>
 
@@ -80,7 +81,7 @@ const DOITooltip = (props: Props) => {
                         <p className=""> ID </p>
                     </span>
                     <span className="widIDTitlethRight">
-                        <p id="tooltipID" className="IDField"> ID of the specimen </p>
+                        <p id="tooltipID" className="IDField"> {record.data.attributes.primarySpecimenObjectId} </p>
                         <p id="tooltipGUID" className="IDField"> (Catalog Record GUID) </p>
                     </span>
                 </div>
@@ -91,7 +92,7 @@ const DOITooltip = (props: Props) => {
                         <img src="../webroot/building-columns-solid.svg" className="organisationIcon" alt="ORG" />
                     </span>
                     <span className="widthRight">
-                        <p id="tooltipOrganisation" className="organisationTitle"> Organisation of specimen </p>
+                        <p id="tooltipOrganisation" className="organisationTitle"> {record.data.attributes.specimenHostName} </p>
                     </span>
                 </div>
 
