@@ -16,6 +16,7 @@ const DOITooltip = (props: Props) => {
     const { doi, children } = props;
 
     /* Hooks */
+    const targetRef = useRef<HTMLSpanElement>(null);
     const DOITooltipRef = useRef<HTMLDivElement>(null);
 
     /* Base variables */
@@ -25,7 +26,7 @@ const DOITooltip = (props: Props) => {
     /* Function for fetching DOI details */
     const TriggerTooltip = async () => {
         try {
-            const response = await fetch(`https://hdl.handle.net/api/handles/${doi}`);
+            const response = await fetch(`https://dev.dissco.tech/handle-manager/api/v1/pids/${doi}`);
             const record = await response.json();
             setActive(true);
 
@@ -58,9 +59,15 @@ const DOITooltip = (props: Props) => {
 
     UseDOITooltip();
 
+    /* Set offset styles for DOI Tooltip */
+    const offsetStyles = {
+        marginTop: targetRef.current ? `${targetRef.current?.offsetTop + 20}px` : '0px',
+        marginLeft: targetRef.current ? `${targetRef.current?.offsetLeft}px` : '0px'
+    }
+
     return (
         <>
-            <span onClick={() => TriggerTooltip()}> {children} </span>
+            <span ref={targetRef} onClick={() => TriggerTooltip()}> {children} </span>
 
             <div id="disscoTooltip" className={`tooltip ${active && 'active'}`} ref={DOITooltipRef}>
                 {/* Digital Extended Specimen */}
