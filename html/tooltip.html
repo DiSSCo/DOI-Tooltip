@@ -14,8 +14,8 @@
                 <p class="digitalExtendedSpecimenTitle"> DES </p>
             </div>
             <div class="widthRight">
-                <p id="tooltipScientificName" class="digitalExtendedSpecimenTitle"> Adonis flammea </p>
-                <p id="tooltipStatus" class="preservedStatus textOverflow"> (preserved botany specimen) </p>
+                <p id="tooltipScientificName" class="digitalExtendedSpecimenTitle"> </p>
+                <p id="tooltipStatus" class="preservedStatus textOverflow"> </p>
             </div>
         </div>
 
@@ -25,8 +25,8 @@
                 <p class=""> ID </p>
             </span>
             <span class="widIDTitlethRight">
-                <p id="tooltipID" class="IDField"> ID of the specimen </p>
-                <p id="tooltipGUID" class="IDField"> (Catalog Record GUID) </p>
+                <p id="tooltipID" class="IDField"> </p>
+                <p id="tooltipGUID" class="IDField"> </p>
             </span>
         </div>
 
@@ -36,7 +36,7 @@
                 <img src="../webroot/building-columns-solid.svg" class="organisationIcon" alt="ORG" />
             </span>
             <span class="widthRight">
-                <p id="tooltipOrganisation" class="organisationTitle"> Organisation of specimen </p>
+                <p id="tooltipOrganisation" class="organisationTitle"> </p>
             </span>
         </div>
 
@@ -69,6 +69,16 @@
 <script type="text/javascript">
     const tooltip = document.getElementById('disscoTooltip');
 
+    /* Function to check if URL is valid */
+    const IsValidUrl = (urlString) => {
+        try {
+            return Boolean(new URL(urlString));
+        }
+        catch (e) {
+            return false;
+        }
+    }
+
     /* Function for triggering the Tooltip with DOI */
     const TooltipTrigger = async (doi, element) => {
         /* Check for opened tooltips */
@@ -91,20 +101,27 @@
         /* Trigger Tooltip with DOI information */
         {
             /* Set Scientific Name */
-            document.getElementById('tooltipScientificName').innerHTML =  record.data.attributes.referentName;
+            document.getElementById('tooltipScientificName').innerHTML =
+                `<a class="tooltipLink" target="_blank" href="https://dev.dissco.tech/ds/${doi}">${record.data.attributes.referentName}</a>`;
 
             /* Set Status */
-            document.getElementById('tooltipStatus').innerHTML = `(${record.data.attributes.livingOrPreserved}
-                ${record.data.attributes.topicDiscipline.toLowerCase()} specimen)`;
+            document.getElementById('tooltipStatus').innerHTML = `(${record.data.attributes.topicDiscipline.toLowerCase()}
+                ${record.data.attributes.livingOrPreserved} specimen)`;
 
             /* Set Status */
-            document.getElementById('tooltipID').innerHTML = record.data.attributes.primarySpecimenObjectId;
+            if (IsValidUrl(record.data.attributes.primarySpecimenObjectId)) {
+                document.getElementById('tooltipID').innerHTML =
+                    `<a href="${record.data.attributes.primarySpecimenObjectId}" target="_blank" class="tooltipLink"> record.data.attributes.primarySpecimenObjectId </a>`;
+            } else {
+                document.getElementById('tooltipID').innerHTML = record.data.attributes.primarySpecimenObjectId;
+            }
 
             /* Set GUID */
             document.getElementById('tooltipGUID').innerHTML = '(Catalog Record GUID)';
 
             /* Set Organisation */
-            document.getElementById('tooltipOrganisation').innerHTML = record.data.attributes.specimenHostName;
+            document.getElementById('tooltipOrganisation').innerHTML =
+                `<a href="${record.data.attributes.specimenHost}" target="_blank" class="tooltipLink"> ${record.data.attributes.specimenHostName} </a>`;
         }
 
         /* Set Tooltip Position relative to element */

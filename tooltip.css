@@ -89,3 +89,9 @@
 .DOILogo {
     width: 30px;
 }
+
+.tooltipLink {
+    color: inherit;
+    font-size: inherit;
+    text-decoration: none;
+}
