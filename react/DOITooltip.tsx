@@ -23,14 +23,27 @@ const DOITooltip = (props: Props) => {
     const [record, setRecord] = useState();
     const [active, setActive] = useState(false);
 
+    /* Function to check if URL is valid */
+    const IsValidUrl = (urlString: string) => {
+        try {
+            return Boolean(new URL(urlString));
+        }
+        catch (e) {
+            return false;
+        }
+    }
+
     /* Function for fetching DOI details */
     const TriggerTooltip = async () => {
         try {
             const response = await fetch(`https://dev.dissco.tech/handle-manager/api/v1/pids/${doi}`);
             const record = await response.json();
-            setActive(true);
 
-            setRecord(record);
+            if (record.data) {
+                setActive(true);
+
+                setRecord(record);
+            }
         } catch (error) {
             console.warn(error);
         }
@@ -69,16 +82,21 @@ const DOITooltip = (props: Props) => {
         <>
             <span ref={targetRef} onClick={() => TriggerTooltip()}> {children} </span>
 
-            <div id="disscoTooltip" className={`tooltip ${active && 'active'}`} ref={DOITooltipRef}>
+            <div id="disscoTooltip" className={`tooltip ${active && 'active'}`} ref={DOITooltipRef} style={offsetStyles}>
                 {/* Digital Extended Specimen */}
                 <div className="tooltipRow">
                     <div className="widthLeft">
                         <p className="digitalExtendedSpecimenTitle"> DES </p>
                     </div>
                     <div className="widthRight">
-                        <p id="tooltipScientificName" className="digitalExtendedSpecimenTitle"> {record.data.attributes.referentName} </p>
-                        <p id="tooltipStatus" className="preservedStatus textOverflow"> {`${record.data.attributes.livingOrPreserved}
-                            ${record.data.attributes.topicDiscipline.toLowerCase()} specimen`} </p>
+                        <p id="tooltipScientificName" className="digitalExtendedSpecimenTitle">
+                            <a className="tooltipLink" href={`https://dev.dissco.tech/ds/${doi}`} target="blank">
+                                {record.data.attributes.referentName}
+                            </a>
+                        </p>
+                        <p id="tooltipStatus" className="preservedStatus textOverflow"> {`${record.data.attributes.topicDiscipline.toLowerCase()}
+                            ${record.data.attributes.livingOrPreserved} specimen`}
+                        </p>
                     </div>
                 </div>
 
@@ -88,7 +106,10 @@ const DOITooltip = (props: Props) => {
                         <p className=""> ID </p>
                     </span>
                     <span className="widIDTitlethRight">
-                        <p id="tooltipID" className="IDField"> {record.data.attributes.primarySpecimenObjectId} </p>
+                        {IsValidUrl(record.data.attributes.primarySpecimenObjectId) ?
+                            <a href={record.data.attributes.primarySpecimenObjectId}> {record.data.attributes.primarySpecimenObjectId} </a>
+                            : <p id="tooltipID" className="IDField"> {record.data.attributes.primarySpecimenObjectId} </p>
+                        }
                         <p id="tooltipGUID" className="IDField"> (Catalog Record GUID) </p>
                     </span>
                 </div>
@@ -99,7 +120,9 @@ const DOITooltip = (props: Props) => {
                         <img src="../webroot/building-columns-solid.svg" className="organisationIcon" alt="ORG" />
                     </span>
                     <span className="widthRight">
-                        <p id="tooltipOrganisation" className="organisationTitle"> {record.data.attributes.specimenHostName} </p>
+                        <a className="tooltipLink" href={record.data.attributes.specimenHost} target="_blank">
+                            <p id="tooltipOrganisation" className="organisationTitle"> {record.data.attributes.specimenHostName} </p>
+                        </a>
                     </span>
                 </div>
 
