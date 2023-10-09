@@ -102,7 +102,7 @@
         {
             /* Set Scientific Name */
             document.getElementById('tooltipScientificName').innerHTML =
-                `<a class="tooltipLink" target="_blank" href="https://dev.dissco.tech/ds/${doi}">${record.data.attributes.referentName}</a>`;
+                `<a class="tooltipLink" target="_blank" href="https://dev.dissco.tech/ds/${doi.replace('https://doi.org', '')}">${record.data.attributes.referentName}</a>`;
 
             /* Set Status */
             document.getElementById('tooltipStatus').innerHTML = `(${record.data.attributes.topicDiscipline.toLowerCase()}
