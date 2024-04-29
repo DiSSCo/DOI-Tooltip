@@ -9,29 +9,35 @@
     <!-- Tooltip Component -->
     <div id="disscoTooltip" class="tooltip">
         <!-- Digital Extended Specimen -->
-        <div class="tooltipRow">
+        <div class="tooltipRow grow">
             <div class="widthLeft">
-                <p class="digitalExtendedSpecimenTitle"> DES </p>
+                <img src="../webroot/tagLogo.png" alt="Tag Logo" class="tagLogo" />
             </div>
             <div class="widthRight">
-                <p id="tooltipScientificName" class="digitalExtendedSpecimenTitle"> </p>
-                <p id="tooltipStatus" class="preservedStatus textOverflow"> </p>
+                <div>
+                    <p id="tooltipScientificName"> </p>
+
+                    <p class="verbatimName">(Verbatim name)</p>
+                </div>
+                <div class="preservedStatusDiv grow">
+                    <p id="tooltipStatus" class="preservedStatus textOverflow"> </p>
+                </div>
             </div>
         </div>
 
         <!-- ID -->
-        <div class="tooltipRow margin">
+        <div class="tooltipRow">
             <span class="widthLeft">
-                <p class=""> ID </p>
+                <p class="IDTitle"> ID </p>
             </span>
-            <span class="widIDTitlethRight">
+            <span class="widthRight">
                 <p id="tooltipID" class="IDField"> </p>
-                <p id="tooltipGUID" class="IDField"> </p>
+                <p id="tooltipGUID" class="catalogNumber"> (Catalog Number) </p>
             </span>
         </div>
 
         <!-- Organisation-->
-        <div class="tooltipRow margin">
+        <div class="tooltipRow">
             <span class="widthLeft">
                 <img src="../webroot/building-columns-solid.svg" class="organisationIcon" alt="ORG" />
             </span>
@@ -41,8 +47,15 @@
         </div>
 
         <!-- DOI Logo -->
-        <div class="tooltopRow DOIRow">
+        <div class="tooltipRow DOIRow">
+            <span class="digitalExtendedSpecienNote">DES</span>
+
             <img src="../webroot/DOI_logo.png" alt="DOI Logo" class="DOILogo" />
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="warningMessage">
+            <p>Invalid DOI was provided, please try again</p>
         </div>
     </div>
 
@@ -51,8 +64,8 @@
         <p style="font-size: 20px;">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit,
 
-            <span style="color: blue; cursor: pointer;" onClick="TooltipTrigger('TEST/ZZZ-ZW5-RF7', this)">
-                20.5000.1025/KMX-F7Q-6UX
+            <span style="color: blue; cursor: pointer;" onmouseenter="TooltipTrigger('10.3535/M42-Z4P-DRD', this)">
+                10.3535/M42-Z4P-DRD
             </span>
 
             sed do eiusmod tempor incididunt ut
@@ -60,6 +73,10 @@
             ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
             dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
             deserunt mollit anim id est laborum.
+
+            <span style="color: blue; cursor: pointer;" onmouseenter="TooltipTrigger('TEST/ZZZ-ZW5-RF7-error', this)">
+                20.5000.1025/KMX-F7Q-6UX
+            </span>
         </p>
     </div>
 </body>
@@ -68,6 +85,7 @@
 
 <script type="text/javascript">
     const tooltip = document.getElementById('disscoTooltip');
+    const errorMessage = document.getElementById('errorMessage');
 
     /* Function to check if URL is valid */
     const IsValidUrl = (urlString) => {
@@ -77,6 +95,42 @@
         catch (e) {
             return false;
         }
+    }
+
+    /* Function to map Handle or DOI response to valid record */
+    const FormatHandleNetResponse = (responseRecord) => {
+        const record = {
+            data: {
+                attributes: {
+                    referentName: responseRecord.values[16].data.value,
+                    specimenHost: responseRecord.values[18].data.value,
+                    specimenHostName: responseRecord.values[19].data.value,
+                    primarySpecimenObjectId: responseRecord.values[20].data.value,
+                    topicDiscipline: responseRecord.values[27].data.value,
+                    livingOrPreserved: responseRecord.values[29].data.value
+                }
+            }
+        };
+
+        return record;
+    }
+
+    /* Function to map Handle or DOI response to valid record */
+    const FormatDOIOrgResponse = (responseRecord) => {
+        const record = {
+            data: {
+                attributes: {
+                    referentName: responseRecord.values[26].data.value,
+                    specimenHost: responseRecord.values[14].data.value,
+                    specimenHostName: responseRecord.values[15].data.value,
+                    primarySpecimenObjectId: responseRecord.values[16].data.value,
+                    topicDiscipline: responseRecord.values[23].data.value,
+                    livingOrPreserved: responseRecord.values[25].data.value
+                }
+            }
+        };
+
+        return record;
     }
 
     /* Function for triggering the Tooltip with DOI */
@@ -89,45 +143,89 @@
         }
 
         /* Try to fetch the DOI record from the handle.net */
-        let record;
+        let record = null;
 
-        try {
-            const response = await fetch(`https://dev.dissco.tech/handle-manager/api/v1/pids/${doi}`);
-            record = await response.json();
-        } catch (error) {
-            console.warn(error);
+        /* If DOI does not contain local prefix, try to resolve with the general handler */
+        if (doi.includes('TEST') || doi.includes('SANDBOX')) {
+            let environment = doi.includes('SANDBOX') ? 'sandbox' : 'dev';
+
+            const response = await fetch(`https://${environment}.dissco.tech/handle-manager/api/v1/pids/${doi.replace('https://doi.org/', '')}`);
+            const responseRecord = await response.json();
+
+            if (responseRecord.data) {
+                record = responseRecord;
+            }
+        } else if (doi.includes('20.5000.1025')) {
+            const respone = await fetch(`https://hdl.handle.net/api/handles/${doi.replace('https://doi.org/', '')}`);
+            const responseRecord = await respone.json();
+
+            if (responseRecord.values.length) {
+                const responseSecord = FormatHandleNetResponse(responseRecord);
+
+                record = responseSecord;
+            }
+        } else if (doi.includes('10.3535')) {
+            const response = await fetch(`https://doi.org/api/handles/${doi.replace('https://doi.org/', '')}`);
+            const responseRecord = await response.json();
+
+            if (responseRecord.values.length) {
+                const responseSecord = FormatDOIOrgResponse(responseRecord);
+
+                record = responseSecord;
+            }
         }
 
-        /* Trigger Tooltip with DOI information */
-        {
+        /* Trigger Tooltip with DOI information, if data is in record */
+        let offsetTop;
+        let offsetLeft;
+
+        if (record?.data) {
             /* Set Scientific Name */
             document.getElementById('tooltipScientificName').innerHTML =
-                `<a class="tooltipLink" target="_blank" href="https://dev.dissco.tech/ds/${doi.replace('https://doi.org', '')}">${record.data.attributes.referentName}</a>`;
+                `<a class="tooltipLink" target="_blank" href="https://dev.dissco.tech/ds/${doi.replace('https://doi.org', '')}"><p class="digitalExtendedSpecimenTitle">${record.data.attributes.referentName}</p></a>`;
 
             /* Set Status */
-            document.getElementById('tooltipStatus').innerHTML = `(${record.data.attributes.topicDiscipline.toLowerCase()}
-                ${record.data.attributes.livingOrPreserved} specimen)`;
+            document.getElementById('tooltipStatus').innerHTML = `${record.data.attributes.livingOrPreserved[0].toUpperCase() + record.data.attributes.livingOrPreserved.slice(1)} ${record.data.attributes.topicDiscipline.toLowerCase()} specimen`;
 
-            /* Set Status */
+            /* Set Object ID */
             if (IsValidUrl(record.data.attributes.primarySpecimenObjectId)) {
                 document.getElementById('tooltipID').innerHTML =
                     `<a href="${record.data.attributes.primarySpecimenObjectId}" target="_blank" class="tooltipLink"> record.data.attributes.primarySpecimenObjectId </a>`;
             } else {
-                document.getElementById('tooltipID').innerHTML = record.data.attributes.primarySpecimenObjectId;
+                document.getElementById('tooltipID').innerHTML = `<p id="tooltipID" class="IDField">${record.data.attributes.primarySpecimenObjectId}</p>`;
             }
-
-            /* Set GUID */
-            document.getElementById('tooltipGUID').innerHTML = '(Catalog Record GUID)';
 
             /* Set Organisation */
             document.getElementById('tooltipOrganisation').innerHTML =
-                `<a href="${record.data.attributes.specimenHost}" target="_blank" class="tooltipLink"> ${record.data.attributes.specimenHostName} </a>`;
+                `<a href="${record.data.attributes.specimenHost}" target="_blank" class="tooltipLink"> <p class="organisationTitle"> ${record.data.attributes.specimenHostName} </p> </a>`;
+
+            /* Show all rows */
+            const tooltipRows = Array.from(document.getElementsByClassName('tooltipRow')).forEach((tooltipRow) => {
+                tooltipRow.classList.remove('error');
+            });
+
+            errorMessage.classList.remove('active');
+            tooltip.classList.remove('error');
+
+            /* Set offset */
+            offsetTop = element.offsetTop - 210;
+            offsetLeft = element.offsetLeft;
+        } else {
+            /* Hide all rows */
+            const tooltipRows = Array.from(document.getElementsByClassName('tooltipRow')).forEach((tooltipRow) => {
+                tooltipRow.classList.add('error');
+            });
+
+            /* Display error message */
+            errorMessage.classList.add('active');
+            tooltip.classList.add('error');
+
+            /* Set offset */
+            offsetTop = element.offsetTop - 40;
+            offsetLeft = element.offsetLeft;
         }
 
         /* Set Tooltip Position relative to element */
-        const offsetTop = element.offsetTop + 20;
-        const offsetLeft = element.offsetLeft;
-
         tooltip.style.marginTop = `${offsetTop}px`;
         tooltip.style.marginLeft = `${offsetLeft}px`;
 
