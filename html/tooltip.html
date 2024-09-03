@@ -107,6 +107,7 @@
             data: {
                 attributes: {
                     referentName: responseRecord.values.find(value => value.type === 'referentName')?.data.value ?? '',
+                    loc: responseRecord.values.find(value => value.type === '10320/loc')?.data.value ?? '',
                     specimenHost: responseRecord.values.find(value => value.type === 'specimenHost')?.data.value ?? '',
                     specimenHostName: responseRecord.values.find(value => value.type === 'specimenHostName')?.data.value ?? '',
                     primarySpecimenObjectId: responseRecord.values.find(value => value.type === 'primarySpecimenObjectId')?.data.value ?? '',
@@ -167,8 +168,13 @@
 
         if (record?.data) {
             /* Set Scientific Name */
+            const locationString = record.data.attributes.loc.replace('<locations>', '').replace('</locations>', '').split('<').find(location => location.includes('id="0"'));
+            const locationIndexStart = locationString.indexOf('href');
+            const locationIndexEnd = locationString.indexOf(' id');
+            const locationUrl = locationString.slice(locationIndexStart, locationIndexEnd).replace('href="', '').replace('"', '');
+
             document.getElementById('tooltipScientificName').innerHTML =
-                `<a class="tooltipLink" target="_blank" href="https://dev.dissco.tech/ds/${doi.replace('https://doi.org', '')}"><p class="digitalExtendedSpecimenTitle">${record.data.attributes.referentName}</p></a>`;
+                `<a class="tooltipLink" target="_blank" href="${locationUrl}""><p class="digitalExtendedSpecimenTitle">${record.data.attributes.referentName}</p></a>`;
 
             /* Set Status */
             document.getElementById('tooltipStatus').innerHTML = `${record.data.attributes.livingOrPreserved[0].toUpperCase() + record.data.attributes.livingOrPreserved.slice(1)} ${record.data.attributes.topicDiscipline.toLowerCase()} specimen`;
