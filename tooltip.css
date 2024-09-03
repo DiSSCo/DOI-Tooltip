@@ -3,6 +3,11 @@
     font-size: 14px;
 }
 
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
 /* Custom styling for DOI Tooltip component */
 .textOverflow {
     overflow: hidden;

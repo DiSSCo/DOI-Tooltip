@@ -70,41 +70,26 @@ const DOITooltip = (props: Props) => {
 
     const DOITooltip = UseDOITooltip();
 
-    /* Function to map Handle or DOI response to valid record */
-    const FormatHandleNetResponse = (responseRecord: { [name: string]: any }) => {
+    /**
+     * Function to map a DOI response to an usable record
+     * @param responseRecord The record received from the DOI API
+     */
+    const FormatResponse = (responseRecord: { [name: string]: any }) => {
         const record = {
             data: {
                 attributes: {
-                    referentName: responseRecord.values[16].data.value,
-                    specimenHost: responseRecord.values[18].data.value,
-                    specimenHostName: responseRecord.values[19].data.value,
-                    primarySpecimenObjectId: responseRecord.values[20].data.value,
-                    topicDiscipline: responseRecord.values[27].data.value,
-                    livingOrPreserved: responseRecord.values[29].data.value
+                    referentName: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'referentName')?.data.value ?? '',
+                    specimenHost: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'specimenHost')?.data.value ?? '',
+                    specimenHostName: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'specimenHostName')?.data.value ?? '',
+                    primarySpecimenObjectId: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'primarySpecimenObjectId')?.data.value ?? '',
+                    topicDiscipline: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'topicDiscipline')?.data.value ?? '',
+                    livingOrPreserved: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'livingOrPreserved')?.data.value ?? ''
                 }
             }
         };
 
         return record;
-    }
-
-    /* Function to map Handle or DOI response to valid record */
-    const FormatDOIOrgResponse = (responseRecord: { [name: string]: any }) => {
-        const record = {
-            data: {
-                attributes: {
-                    referentName: responseRecord.values[26].data.value,
-                    specimenHost: responseRecord.values[14].data.value,
-                    specimenHostName: responseRecord.values[15].data.value,
-                    primarySpecimenObjectId: responseRecord.values[16].data.value,
-                    topicDiscipline: responseRecord.values[23].data.value,
-                    livingOrPreserved: responseRecord.values[25].data.value
-                }
-            }
-        };
-
-        return record;
-    }
+    };
 
     /* Function for fetching DOI details */
     const TriggerTooltip = async () => {
@@ -113,27 +98,40 @@ const DOITooltip = (props: Props) => {
             if (doi.includes('TEST') || doi.includes('SANDBOX')) {
                 let environment: string = doi.includes('SANDBOX') ? 'sandbox' : 'dev';
 
+                /* Format for CRA */
                 const response = await fetch(`https://${environment}.dissco.tech/handle-manager/api/v1/pids/${doi.replace(process.env.REACT_APP_DOI_URL as string, '')}`);
+                /* Format for VITE
+                const response = await fetch(`https://${environment}.dissco.tech/handle-manager/api/v1/pids/${doi.replace(import.meta.env.VITE_DOI_URL as string, '')}`);
+                */
                 const record = await response.json();
 
                 if (record.data) {
                     setRecord(record);
                 }
             } else if (doi.includes('20.5000.1025')) {
+                /* Format for CRA */
                 const respone = await fetch(`https://hdl.handle.net/api/handles/${doi.replace(process.env.REACT_APP_DOI_URL as string, '')}`);
+                /* Format for VITE
+                const respone = await fetch(`https://hdl.handle.net/api/handles/${doi.replace(import.meta.env.VITE_DOI_URL as string, '')}`);
+                */
+
                 const responseRecord = await respone.json();
 
                 if (responseRecord.values.length) {
-                    const record = FormatHandleNetResponse(responseRecord);
+                    const record = FormatResponse(responseRecord);
 
                     setRecord(record);
                 }
             } else if (doi.includes('10.3535')) {
+                /* Format for CRA */
                 const response = await fetch(`https://doi.org/api/handles/${doi.replace(process.env.REACT_APP_DOI_URL as string, '')}`);
+                /* Format for VITE
+                const response = await fetch(`https://doi.org/api/handles/${doi.replace(import.meta.env.VITE_DOI_URL  as string, '')}`);
+                */
                 const responseRecord = await response.json();
 
                 if (responseRecord.values.length) {
-                    const record = FormatDOIOrgResponse(responseRecord);
+                    const record = FormatResponse(responseRecord);
 
                     setRecord(record);
                 }

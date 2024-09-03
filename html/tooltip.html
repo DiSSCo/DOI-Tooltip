@@ -48,9 +48,13 @@
 
         <!-- DOI Logo -->
         <div class="tooltipRow DOIRow">
-            <span class="digitalExtendedSpecienNote">DES</span>
+            <a href="https://doi.org/10.1093/biosci/biac060" rel="noreferer" target="_blank">
+                <span class="digitalExtendedSpecienNote">DES</span>
+            </a>
 
-            <img src="../webroot/DOI_logo.png" alt="DOI Logo" class="DOILogo" />
+            <a href="https://www.doi.org/the-identifier/what-is-a-doi/" rel="noreferer" target="_blank">
+                <img src="../webroot/DOI_logo.png" alt="DOI Logo" class="DOILogo" />
+            </a>
         </div>
 
         <!-- Error Message -->
@@ -74,7 +78,7 @@
             dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
             deserunt mollit anim id est laborum.
 
-            <span style="color: blue; cursor: pointer;" onmouseenter="TooltipTrigger('TEST/ZZZ-ZW5-RF7-error', this)">
+            <span style="color: blue; cursor: pointer;" onmouseenter="TooltipTrigger('TEST/ZZZ-ZW5-RF7', this)">
                 20.5000.1025/KMX-F7Q-6UX
             </span>
         </p>
@@ -97,41 +101,23 @@
         }
     }
 
-    /* Function to map Handle or DOI response to valid record */
-    const FormatHandleNetResponse = (responseRecord) => {
+    /* Function to format the response record */
+    const FormatResponse = (responseRecord) => {
         const record = {
             data: {
                 attributes: {
-                    referentName: responseRecord.values[16].data.value,
-                    specimenHost: responseRecord.values[18].data.value,
-                    specimenHostName: responseRecord.values[19].data.value,
-                    primarySpecimenObjectId: responseRecord.values[20].data.value,
-                    topicDiscipline: responseRecord.values[27].data.value,
-                    livingOrPreserved: responseRecord.values[29].data.value
+                    referentName: responseRecord.values.find(value => value.type === 'referentName')?.data.value ?? '',
+                    specimenHost: responseRecord.values.find(value => value.type === 'specimenHost')?.data.value ?? '',
+                    specimenHostName: responseRecord.values.find(value => value.type === 'specimenHostName')?.data.value ?? '',
+                    primarySpecimenObjectId: responseRecord.values.find(value => value.type === 'primarySpecimenObjectId')?.data.value ?? '',
+                    topicDiscipline: responseRecord.values.find(value => value.type === 'topicDiscipline')?.data.value ?? '',
+                    livingOrPreserved: responseRecord.values.find(value => value.type === 'livingOrPreserved')?.data.value ?? ''
                 }
             }
         };
 
         return record;
-    }
-
-    /* Function to map Handle or DOI response to valid record */
-    const FormatDOIOrgResponse = (responseRecord) => {
-        const record = {
-            data: {
-                attributes: {
-                    referentName: responseRecord.values[26].data.value,
-                    specimenHost: responseRecord.values[14].data.value,
-                    specimenHostName: responseRecord.values[15].data.value,
-                    primarySpecimenObjectId: responseRecord.values[16].data.value,
-                    topicDiscipline: responseRecord.values[23].data.value,
-                    livingOrPreserved: responseRecord.values[25].data.value
-                }
-            }
-        };
-
-        return record;
-    }
+    };
 
     /* Function for triggering the Tooltip with DOI */
     const TooltipTrigger = async (doi, element) => {
@@ -160,7 +146,7 @@
             const responseRecord = await respone.json();
 
             if (responseRecord.values.length) {
-                const responseSecord = FormatHandleNetResponse(responseRecord);
+                const responseSecord = FormatResponse(responseRecord);
 
                 record = responseSecord;
             }
@@ -169,7 +155,7 @@
             const responseRecord = await response.json();
 
             if (responseRecord.values.length) {
-                const responseSecord = FormatDOIOrgResponse(responseRecord);
+                const responseSecord = FormatResponse(responseRecord);
 
                 record = responseSecord;
             }
