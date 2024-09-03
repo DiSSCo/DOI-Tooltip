@@ -79,6 +79,7 @@ const DOITooltip = (props: Props) => {
             data: {
                 attributes: {
                     referentName: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'referentName')?.data.value ?? '',
+                    loc: responseRecord.values.find((value: { [name: string]: any }) => value.type === '10320/loc')?.data.value ?? '',
                     specimenHost: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'specimenHost')?.data.value ?? '',
                     specimenHostName: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'specimenHostName')?.data.value ?? '',
                     primarySpecimenObjectId: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'primarySpecimenObjectId')?.data.value ?? '',
@@ -154,6 +155,11 @@ const DOITooltip = (props: Props) => {
         marginLeft: targetRef.current ? `${targetRef.current?.offsetLeft}px` : '0px'
     }
 
+    const locationString = record.data?.attributes.loc.replace('<locations>', '').replace('</locations>', '').split('<').find((location: string) => location.includes('id="0"')) ?? '';
+    const locationIndexStart = locationString.indexOf('href');
+    const locationIndexEnd = locationString.indexOf(' id');
+    const locationUrl = locationString.slice(locationIndexStart, locationIndexEnd).replace('href="', '').replace('"', '') ?? '';
+
     return (
         <>
             <button type="button" style={{ color: 'blue', cursor: 'pointer' }} ref={targetRef}
@@ -175,7 +181,7 @@ const DOITooltip = (props: Props) => {
                             </div>
                             <div className="widthRight">
                                 <div>
-                                    <a className="tooltipLink" href={`https://dev.dissco.tech/ds/${doi}`} target="_blank">
+                                    <a className="tooltipLink" href={locationUrl} target="_blank">
                                         <p id="tooltipScientificName" className="digitalExtendedSpecimenTitle"> {record.data.attributes.referentName} </p>
                                     </a>
 
@@ -223,9 +229,13 @@ const DOITooltip = (props: Props) => {
 
                         {/* DOI Logo */}
                         <div className="tooltopRow DOIRow">
-                            <span className="digitalExtendedSpecienNote">DES</span>
+                            <a href="https://doi.org/10.1093/biosci/biac060" rel="noreferer" target="_blank">
+                                <span className="digitalExtendedSpecienNote">DES</span>
+                            </a>
 
-                            <img src={DOILogo} alt="DOI Logo" className="DOILogo" />
+                            <a href="https://www.doi.org/the-identifier/what-is-a-doi/" rel="noreferer" target="_blank">
+                                <img src={DOILogo} alt="DOI Logo" className="DOILogo" />
+                            </a>
                         </div>
                     </>
                     : <p className="warningMessage"> Invalid DOI was provided, please try again </p>
