@@ -66,19 +66,12 @@
     <!-- Test DOI -->
     <div style="width: 60%; margin-left: 20%; height: 100%; display: flex; align-items: center;">
         <p style="font-size: 20px;">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-
-            <span style="color: blue; cursor: pointer;" onmouseenter="TooltipTrigger('10.3535/M42-Z4P-DRD', this)">
-                10.3535/M42-Z4P-DRD
+            The following DOI demonstrates the tooltip functionality:
+            <span style="color: blue; cursor: pointer;" onmouseenter="TooltipTrigger('10.3535/0RS-2F9-VEJ', this)">
+                10.3535/0RS-2F9-VEJ
             </span>
-
-            sed do eiusmod tempor incididunt ut
-            labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi
-            ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-            dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-            deserunt mollit anim id est laborum.
-
-            <span style="color: blue; cursor: pointer;" onmouseenter="TooltipTrigger('TEST/ZZZ-ZW5-RF7', this)">
+            Upon hovering, you can see key information about the digital specimen, without resolving the resource. This information is stored in the FDO record.
+            <span style="color: blue; cursor: pointer;" onmouseenter="TooltipTrigger('10.3535/0RS-2F9-VEJ', this)">
                 20.5000.1025/KMX-F7Q-6UX
             </span>
         </p>
@@ -136,7 +129,7 @@
         if (doi.includes('TEST') || doi.includes('SANDBOX')) {
             let environment = doi.includes('SANDBOX') ? 'sandbox' : 'dev';
 
-            const response = await fetch(`https://${environment}.dissco.tech/handle-manager/api/v1/pids/${doi.replace('https://doi.org/', '')}`);
+            const response = await fetch(`https://${environment}.dissco.tech/handle-manager/api/pids/v1/${doi.replace('https://doi.org/', '')}`);
             const responseRecord = await response.json();
 
             if (responseRecord.data) {
