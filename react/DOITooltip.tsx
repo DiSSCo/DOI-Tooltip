@@ -82,7 +82,7 @@ const DOITooltip = (props: Props) => {
                     loc: responseRecord.values.find((value: { [name: string]: any }) => value.type === '10320/loc')?.data.value ?? '',
                     specimenHost: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'specimenHost')?.data.value ?? '',
                     specimenHostName: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'specimenHostName')?.data.value ?? '',
-                    primarySpecimenObjectId: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'primarySpecimenObjectId')?.data.value ?? '',
+                    primarySpecimenObjectId: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'catalogNumber')?.data.value ?? '--',
                     topicDiscipline: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'topicDiscipline')?.data.value ?? '',
                     livingOrPreserved: responseRecord.values.find((value: { [name: string]: any }) => value.type === 'livingOrPreserved')?.data.value ?? ''
                 }
@@ -100,9 +100,9 @@ const DOITooltip = (props: Props) => {
                 let environment: string = doi.includes('SANDBOX') ? 'sandbox' : 'dev';
 
                 /* Format for CRA */
-                const response = await fetch(`https://${environment}.dissco.tech/handle-manager/api/v1/pids/${doi.replace(process.env.REACT_APP_DOI_URL as string, '')}`);
+                const response = await fetch(`https://${environment}.dissco.tech/handle-manager/api/pids/v1/${doi.replace(process.env.REACT_APP_DOI_URL as string, '')}`);
                 /* Format for VITE
-                const response = await fetch(`https://${environment}.dissco.tech/handle-manager/api/v1/pids/${doi.replace(import.meta.env.VITE_DOI_URL as string, '')}`);
+                const response = await fetch(`https://${environment}.dissco.tech/handle-manager/api/pids/v1/${doi.replace(import.meta.env.VITE_DOI_URL as string, '')}`);
                 */
                 const record = await response.json();
 
